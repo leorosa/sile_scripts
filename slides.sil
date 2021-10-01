@@ -1,0 +1,104 @@
+\begin[class=slides,papersize=5.04in x 3.78in]{document}
+\script[src=lorem]
+\script[src=packages/date]
+%\script[src=packages/background]
+%\background[color=gray]
+
+%\noTransitionSlides
+%\ruleFolios
+\backgroundImage[src=figures/bgmain.png]
+\alternateImage[src=figures/bgalt.png]
+\themeColor[color=darkblue]
+\font[family=FreeSans,size=11pt]
+\begin{raggedright}
+
+\rootImage[src=figures/bgtitle.png]
+
+\hbox\vfill
+
+\center{\title{Making presentations using SILE}}
+
+\vfill
+
+\raggedleft{
+Autor: Leonardo Rosa
+
+Blumenau, %15/Jan/2020
+\date[format="%d/%b/%Y"] %%B %d, %Y"] % %F
+
+}
+
+
+\slide{Summary}
+
+\toc
+
+
+\section{Introduction}
+
+\slide{Introduction}
+
+\litem[level=1]{item 1}
+\litem[level=1]{item 2}
+    \litem[level=2]{item 2.1}
+    \litem[level=2]{item 2.2}
+        \litem[level=3]{item 2.2.1}
+        \litem[level=3]{item 2.2.2}
+\litem{item 3}
+        \litem[level=3]{item 3.0.1}
+
+
+\section[name=Features]{Testing Features}
+
+\slide[columns=2]{A slide with a long title, crossing the two columns below}
+
+\lorem[words=49]
+
+\eject
+
+\lorem
+
+
+\slide[columns=2]{}
+
+\title{A title}
+
+\lorem[words=60]
+
+\eject
+
+\title{Another title}
+
+\lorem[words=60]
+
+
+\slide{Figures?}
+%
+\float{
+\color[color=gray]{\hrule[height=7.5cm,width=2cm]} ← A figure}
+
+\litem{\lorem[words=5]}
+\litem{\lorem[words=5]}
+\litem{\lorem[words=5]}
+\litem{\lorem[words=5]}
+%\litem{\lorem[words=5]}
+%\litem{\lorem[words=5]}
+%\litem{\lorem[words=5]}
+%\litem{\lorem[words=5]}
+%\litem{\lorem[words=5]}
+
+\slide{Next}
+
+\lorem
+
+
+
+\section{Finale}
+
+\slide{Concluding remarks}
+
+\lorem
+
+\end{raggedright}
+\end{document}
+
