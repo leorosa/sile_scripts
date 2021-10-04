@@ -51,8 +51,7 @@
 \lorem[words=30]
 
 \center{
-\color[color=gray]{\hrule[height=2cm,width=7.5cm]}
-
+\img[src=figures/mesh.png,width=200px]
 \fcaption{A figure caption}
 }
 
