@@ -1,14 +1,15 @@
 \begin[class=plain,papersize=297mm x 210mm]{document}\nofolios
-\script[src=packages/frametricks]
-\script[src=packages/color]
-\script[src=packages/raiselower]
-\script[src=packages/rules]
+\use[module=packages.frametricks]
+\use[module=packages.color]
+\use[module=packages.raiselower]
+\use[module=packages.rules]
+\use[module=packages.rotate]
 
 \set[parameter=document.parindent,value=0pt]
 
 \define[command=do_cal]{
-\begin{script}
-    year = 2021
+\begin{lua}
+    year = os.date("%Y") --2021
 
     local years_ch = { "mouse", "ox", "tiger", "rabbit", "dragon", "snake", "horse", "goat", "monkey", "rooster", "dog", "pig" }
     year_ch = years_ch[(year-4)%12+1]
@@ -70,7 +71,7 @@
             SILE.call("do_title", {}, { year .. "" } )
             SILE.call("bigskip")
             SILE.call("breakframevertical")
-            SILE.call("makecolumns", { columns=6 } , {})
+            SILE.call("makecolumns", { columns=6, balanced=false } , {})
         end
         if month ~=1 and month ~= 7 then
             SILE.call("vfill")
@@ -109,7 +110,7 @@
             else
                 SILE.typesetter:typeset(i .. "  " .. day_names[1+(day%7)])
                 SILE.call("raise", {height="3pt"}, function()
-                    SILE.call("font", {size="1.5ex"}, {text})
+                    SILE.call("font", {size="1.1ex"}, {text})
                 end)
             end
 
@@ -119,7 +120,7 @@
             mday = mday+1
         end
     end
-\end{script}
+\end{lua}
 }
 
 \define[command="do_title"]{
@@ -132,3 +133,5 @@
 
 \end{document}
 
+% pdf post-processing:
+% pdftk calendar.pdf cat 1west 2east output cal.pdf
