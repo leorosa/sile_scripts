@@ -1,0 +1,155 @@
+\begin[class=slides,papersize=5.04in x 3.78in]{document}
+\use[module=packages.lorem]
+%\use[module=packages/background]
+%\background[color=gray]
+\backgroundImage[src=bgmain.png]
+\alternateImage[src=bgalt.png]
+\themeColor[color=darkblue]
+%\noTransitionSlides
+\ruleFolios
+
+\begin{raggedright}
+
+\rootImage[src=bgtitle.png]
+
+\hbox
+\vfill
+
+\center{\title{'slides.lua' class for SILE}}
+
+\vfill
+
+\raggedleft{
+Leonardo Rosa
+
+2026-07-13
+
+\hbox
+}
+
+
+%\slide[title="Summary"]{ \toc }
+
+
+\section{Introduction}
+
+\begin[title="About", center=true]{slide}
+    \begin{litems}
+        \litem{"slides.lua" is a class to make presentations with SILE}
+        \litem{It roses from the need to reuse in presentations content already written in SILE documents}
+        \litem{It implements a few new commands to make slides editing easy}
+        \litem{Let's see them}
+    \end{litems}
+\end{slide}
+
+
+\section{Commands}
+
+\begin[title="\slide"]{slide}
+   The "\\slide" command is used to... create new slides
+
+    It accepts these arguments:
+
+    \begin{litems}
+        \litem{\strong{title} to set a title for the slide (default=""), and}
+        \litem{\strong{columns} to set the number of columns (default=1)}
+        \litem{\strong{center} to make the slide contents vertically 'centered' at 1/3 of the frame — it adds one "vfill" before and two after contents (default=false)}
+    \end{litems}
+
+    There is also a function "\\title", that is called in slides titles, but may be used elsewhere.
+
+    The next slide uses "columns=2" and a "\\title" in each column.
+
+    (Custom titles are needed there because a slide title spans over all slide columns)
+\end{slide}
+
+
+\begin[columns=2]{slide}
+
+\title{\\transition}
+    The "\\transition" is used to place a slide with just one sentence in its middle.
+
+    This is useful to highlight places in a presentation.
+
+\break
+
+\title{\\section}
+    The "\\section" command is used to organize the slides.
+
+    It accepts the option "name", which defaults to the content of the command.
+    Section names are displayed as links at the top of slides.
+
+    Moreover, a transition slide can appear at the beginning of a new section.
+
+    This behavior can be supressed by calling the "\\noTransitionSlides" command.
+\end{slide}
+
+
+\begin[columns=2,title="(... see a large title over two columns)"]{slide}
+    \lorem[words=60]
+
+    \eject
+
+    \lorem
+\end{slide}
+
+
+\begin[title="\toc"]{slide}
+    The command "\\toc" is used to display a list of the sections in a presentation.
+
+    Its result is something like this:
+
+    \toc
+\end{slide}
+
+
+
+\begin[title="\litems"]{slide}
+    There is also a list environment, "\\litems", in which each item is defined by calling a "\\litem" command.
+
+    While it would be possible to reuse the "\\lists" package, the list implemented here displays colored marks, and nested list items appear with smaller font sizes.
+\end{slide}
+
+
+\section{Options}
+
+\begin[title="Options"]{slide}
+    Besides the "\\noTransitionSlides", the following commands may be used to customize presentations:
+
+    \begin{litems}
+        \litem{\strong{themeColor}: to change the color applied to titles and decorations (default=black)}
+        \litem{\strong{ruleFolios}: to show the presentation progress with an horizontal bar at the bottom (default=false)}
+        \litem{\strong{printNotes}: to print slide notes (default=true)}
+        \litem{\strong{backgroundImage}: to set an image to be shown in background}
+        \litem{\strong{alternateImage}: to set an image to be shown in transitions}
+        \litem{\strong{rootImage}: to show an image in the background of the slide}
+    \end{litems}
+\end{slide}
+
+
+\begin[title="First Slide", center=true]{slide}
+    The first slide has no features, since it is expected to be designed manually.
+
+    For it, the commands "\\rootImage" and "\\title" may be useful.
+\end{slide}
+
+
+\section{Finale}
+
+\begin[title="Concluding remarks"]{slide}
+    I learned a bit about SILE while writing this class — i.e., the code surely may be improved.
+
+    It may be found here:
+
+    \center{ \strong{ \href[src="https://github.com/leorosa/sile_scripts"]{https://github.com/leorosa/sile_scripts} } }
+
+    "slides.lua" was created for my personal use.
+    If you also find it useful, or have suggestions, please let me know.
+
+    Thanks!
+\end{slide}
+
+\end{raggedright}
+
+\end{document}
+
