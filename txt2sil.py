@@ -3,7 +3,7 @@
 # formatting marks, e.g. "*":
 #       *enclosed text*
 #       ^** formatted line
-#       ^*** begin/end formated block of lines
+#       ^*** begin/end formatted block of lines
 #  ^####        = section (up to 4 levels)
 #                 if there isn't a title in the documnet, '# ' will assume that it is a title, formatted in a new line
 #                 if header has a counter format, then '# ' will be a numbered title
