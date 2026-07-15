@@ -1,6 +1,5 @@
-'slides.lua' is a class to make simple presentations with SILE.
-
-# Commands
+`slides.lua` is a class that allows to make simple presentations with SILE.
+It may be adjusted through the following commands:
 
 - `\slide` is used to create new slides.
     It accepts these arguments:
@@ -26,8 +25,6 @@
 
 - `\litems` is a list environment in which each item is defined by calling a `\litem` command.
 
-
-# Options
 
 Besides the `\noTransitionSlides`, the following commands may be used to customize presentations:
 
