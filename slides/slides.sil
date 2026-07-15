@@ -19,13 +19,13 @@
 
 \vfill
 
-\raggedleft{
-Leonardo Rosa
-
-2026-07-13
-
-\hbox
-}
+%\raggedleft{
+%Leonardo Rosa
+%
+%2026-07-13
+%
+%\hbox
+%}
 
 
 %\slide[title="Summary"]{ \toc }
@@ -35,8 +35,8 @@ Leonardo Rosa
 
 \begin[title="About", center=true]{slide}
     \begin{litems}
-        \litem{"slides.lua" is a class to make presentations with SILE}
-        \litem{It roses from the need to reuse in presentations content already written in SILE documents}
+        \litem{"slides.lua" is a class that allows to make simple presentations with SILE}
+        \litem{It arose from the need of making presentations reusing content already written in SILE documents}
         \litem{It implements a few new commands to make slides editing easy}
         \litem{Let's see them}
     \end{litems}
