@@ -66,7 +66,7 @@ Grouped citations are made with `[@key1, @key2]`
 - `=text=` for highlighted text
 - `^text^` for superscript text
 - `~text~` for subscript text
-- "`code`" for code
+- ```` `code` ```` for code
 
 These marks can be applied to enclosed pieces of text, as shown above, or in two other ways:
 
@@ -186,10 +186,10 @@ These options, set in the header, may affect the document visual
 - `highlightids`: indicates if unknown labels (called by `@label`) are to be highlighted or ignored
 - `nestedsecs`: indicates if section numbers are to be concatenated to parent section numbers
 - `curlyquotes`: indicates if single and double quotes are to be transformed in curly quotes
-- `replace`: a list of pairs of strings to be replaced in the document (e.g., '-----,\\noindent\\hrulefill')
+- `replace`: a list of pairs of strings to be replaced in the document (e.g., `'-----,\\noindent\\hrulefill'`)
 - `packages`: a list of the packages to be included in the SILE document
 
 Switches are variables which only they presence affects the parser behaviour, regardless of any value set.
-They are: authtitle, datetitle, sectitle, nequations, curlyquotes, highlightids, nestedsecs, resetnotes, draft.
-Switches valid only for slides are: transitionslides, rulefolios, vcenter, printnotes
+They are: `authtitle`, `datetitle`, `sectitle`, `nequations`, `curlyquotes`, `highlightids`, `nestedsecs`, `resetnotes`, `draft`.
+Switches valid only for slides are: `transitionslides`, `rulefolios`, `vcenter`, `printnotes`.
 Switches can be 'unset' by defining a no-switch variable, e.g. `noauthtitle`
