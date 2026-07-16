@@ -1,59 +1,5 @@
 #! /usr/bin/python3
 
-# formatting marks, e.g. "*":
-#       *enclosed text*
-#       ^** formatted line
-#       ^*** begin/end formatted block of lines
-#  ^####        = section (up to 4 levels)
-#                 if there isn't a title in the document, '# ' will assume that it is a title, formatted in a new line
-#                 if header has a counter format, then '# ' will be a numbered title
-#  ^#:          = force section number
-#  ^#-          = ommit section number
-#  ^\t          = indent
-#  ^%           = comment (ignore)
-#  %%%          = begin/end comments (i.e., ignore lines)
-#   *text*      = bold
-#   _text_      = italic
-#   +text+      = underline
-#   -text-      = strikeout
-#   =text=      = highlight
-#   ^sup^       = superscript
-#   ~sub~       = subscript
-#   `code`      = code
-#   #cat:it     = increment a counter in a 'cat' category
-#   @cat:it     = print a counter, creating it if needed
-#   @cite       = citation
-#   [@cite @cite] = grouped citations
-#   @meta       = print config
-#  ^␣*20        = center line
-#  ^>␣          = quote; '>' must be followed by a space (using NBSP will produce a list)
-#  ^<␣          = left quote
-#  ^|␣          = quote preserving lines
-#  ^|...|$      = table
-#  ^<<          = include file (text or image)
-#  ^<<[opt]     = include file with options: [code] or [quote] to format the text content, or [options] to pass to a figure
-#  ^[-+*>§_]␣   = list, with different symbols ('_' for no bullets)
-#  ^ *[0-9].    = numbered list
-#  ^ *[<[(][0-9][)]>]. = delimited numbered list
-#   $...$       = math
-#   $$...$$     = displaymath
-#   $$:lab...$$ = displaymath, numbered=true, record number to eq:lab
-#  ^:key caption = caption, with an optional key for cross-referencing
-#             = \vfill ( ia the 'vertical tab' character)
-#             = new page ( is the 'form feed' character)
-#   ^[note]     = note (footnote or endnote)
-#   --          = en-dash, –
-#   ---         = em-dash, —
-#   ...         = elipsis, …
-#   @app:lab    = used to appendix, Alpha number, will print references before if any
-# proposed:
-#   ^>>>        = raggedleft/flushright
-#   ^<<<        = raggedright/flushleft
-#   ^<>         = center
-#   ^\          = preserve lines
-#   \$          = line break
-
-
 import os, sys, re #, random
 
 config    = {}
