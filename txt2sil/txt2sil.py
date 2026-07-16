@@ -5,7 +5,7 @@
 #       ^** formatted line
 #       ^*** begin/end formatted block of lines
 #  ^####        = section (up to 4 levels)
-#                 if there isn't a title in the documnet, '# ' will assume that it is a title, formatted in a new line
+#                 if there isn't a title in the document, '# ' will assume that it is a title, formatted in a new line
 #                 if header has a counter format, then '# ' will be a numbered title
 #  ^#:          = force section number
 #  ^#-          = ommit section number
