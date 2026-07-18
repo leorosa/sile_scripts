@@ -6,7 +6,7 @@ It may be adjusted through the following commands:
 
     - `title` to set a title for the slide (default=""),
     - `columns` to set the number of columns (default=1), and
-    - `center` to make the slide contents vertically 'centered' at 1/3 of the frame — it adds one `\vfill` before and two after contents (default=false).
+    - `center` to position slide content vertically at 1/3 of the frame — it adds one `\vfill` before and two after contents (default=false).
 
 - `\title` to print titles.
 
