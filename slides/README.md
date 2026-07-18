@@ -4,9 +4,9 @@ It may be adjusted through the following commands:
 - `\slide` is used to create new slides.
     It accepts these arguments:
 
-    - **title** to set a title for the slide (default=""), and
-    - **columns** to set the number of columns (default=1)
-    - **center** to make the slide contents vertically 'centered' at 1/3 of the frame — it adds one "vfill" before and two after contents (default=false)
+    - `title` to set a title for the slide (default=""), and
+    - `columns` to set the number of columns (default=1)
+    - `center` to make the slide contents vertically 'centered' at 1/3 of the frame — it adds one `\vfill` before and two after contents (default=false)
 
 - `\title` to print titles.
 
