@@ -28,10 +28,10 @@ It may be adjusted through the following commands:
 
 Besides the `\noTransitionSlides`, the following commands may be used to customize presentations:
 
-- **themeColor**: to change the color applied to titles and decorations (default=black)
-- **ruleFolios**: to show the presentation progress with an horizontal bar at the bottom (default=false)
-- **printNotes**: to print slide notes (default=true)
-- **backgroundImage**: to set an image to be shown in background
-- **alternateImage**: to set an image to be shown in transitions
-- **rootImage**: to show an image in the background of the slide
+- `themeColor`: to change the color applied to titles and decorations (default=black)
+- `ruleFolios`: to show the presentation progress with an horizontal bar at the bottom (default=false)
+- `printNotes`: to print slide notes (default=true)
+- `backgroundImage`: to set an image to be shown in background
+- `alternateImage`: to set an image to be shown in transitions
+- `rootImage`: to show an image in the background of the slide
 
