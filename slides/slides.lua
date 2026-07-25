@@ -3,17 +3,31 @@ local plain = require("classes.plain")
 local class = pl.class(plain)
 class._name = "slides"
 
-local sectionName = "Presentation"
-local slideName = ""
-local isNewSection = true
-local hasNotes = false
+--- Default configuration for slides presentation
+local config = {
+    hcolor = "black",
+    ruleFolios = false,
+    showTransitionSlides = true,
+    printNotes = false,
+    notesSize = "2.5ex",
+    mainBG = nil,
+    altBG = nil,
+}
 
---defaults:
-local hcolor = "black"
-local ruleFolios = false
-local showTransitionSlides = true
-local printNotes = false
+--- Bullet point markers for different nesting levels
 local marks = { ">", "•", "–", "+", "o", "▶", "»", "›", "→" }
+
+--- Runtime state tracking
+local state = {
+    sectionName = "Presentation",
+    slideName = "",
+    isNewSection = true,
+    hasNotes = false,
+    ilevel = 1,
+}
+
+local headers = {}
+local totalPages = 0
 
 --SILE.documentState.paperSize = SILE.paperSizeParser("5.04in x 3.78in")
 class.defaultFrameset = {
@@ -76,7 +90,7 @@ function class:_init(options)
     SILE.call("set-counter", {id="folio", value=0})
     self:registerCommand("foliostyle", function(_, _) -- FIXME is this command name suitable?
         if not tonumber(totalPages) then return end
-        if ruleFolios then
+        if config.ruleFolios then
             SILE.call("noindent")
             local rwidth = string.format("%f", 100*plain.packages.counters:formatCounter(SILE.scratch.counters.folio) / totalPages).."%fw"
             SILE.call("color", { color=hcolor }, function()
@@ -88,7 +102,7 @@ function class:_init(options)
             SILE.typesetter:typeset(" ")
             SILE.typesetter:pushGlue(SILE.types.node.hfillglue())
             SILE.call("font", { size="1.5ex" }, function()
-                SILE.call("color", { color=hcolor }, function()
+                SILE.call("color", { color=config.hcolor }, function()
                     SILE.typesetter:typeset(plain.packages.counters:formatCounter(SILE.scratch.counters.folio) .. "/" .. totalPages)
                 end)
             end)
@@ -116,13 +130,13 @@ function class:registerCommands()
     self:registerCommand("running-head", function(_, _)
         SILE.call("typeset-into", { frame="runningHead" }, function()
             SILE.call("font", { size="1ex" }, function()
-                for id,val in ipairs(headers) do
+                for _,val in ipairs(headers) do
                     SILE.typesetter:pushGlue(SILE.types.node.hfillglue())
-                    if val == sectionName then
+                    if val == state.sectionName then
 --                      SILE.call("pdf:link", { dest=val, border=1, borderstyle="underline" }, { val } )
 --                      SILE.call("pdf:link", { dest=val, borderwidth="0.2pt", borderstyle="underline", bordercolor=hcolor, borderoffset="0.5pt" }, function()
-                        SILE.call("pdf:link", { dest=val, borderstyle="none", bordercolor=hcolor, borderoffset="0.5pt" }, function()
-                            SILE.call("color", { color=hcolor }, { val } )
+                        SILE.call("pdf:link", { dest=val, borderstyle="none", bordercolor=config.hcolor, borderoffset="0.5pt" }, function()
+                            SILE.call("color", { color=config.hcolor }, { val } )
                         end)
                     else
                         SILE.call("pdf:link", { dest=val }, function()
@@ -137,19 +151,19 @@ function class:registerCommands()
     end)
 
     self:registerCommand("section", function(options, content)
-        sectionName = options.name or content[1]
-        isNewSection = true
+        state.sectionName = options.name or content[1]
+        state.isNewSection = true
         fileID = io.open(logfile, "a") -- for each section, add an entry in logfile
-        fileID:write(sectionName .. "\n")
+        fileID:write(state.sectionName .. "\n")
         fileID:close()
-        if showTransitionSlides then
+        if config.showTransitionSlides then
             SILE.call("transition", {}, content)
         end
     end)
 
     self:registerCommand("transition", function(_, content)
         SILE.call("break")
-        SILE.call("rootImage", { src=altBG })
+        SILE.call("rootImage", { src=config.altBG })
         SILE.call("hbox")
         SILE.call("vfill") -- align slide vertically
         SILE.call("center", {}, function()
@@ -163,8 +177,8 @@ function class:registerCommands()
         SILE.call("break")
         local cols = tonumber(options.columns) or 1
         local vCenter = options.center or false -- align slide vertically
-        slideName = content[1] or sectionName
-        SILE.call("rootImage", { src=mainBG })
+        state.slideName = content[1] or state.sectionName
+        SILE.call("rootImage", { src=config.mainBG })
         if options.title then
             SILE.call("title", {}, { options.title })
             SILE.call("breakframevertical")
@@ -173,7 +187,7 @@ function class:registerCommands()
             SILE.call("makecolumns", { columns=cols, balanced=false }, {})
         end
         SILE.call("running-head")
-        hasNotes = false
+        state.hasNotes = false
         if vCenter then
             SILE.call("hbox")
             SILE.call("vfill")
@@ -185,15 +199,15 @@ function class:registerCommands()
             SILE.call("vfill") -- a second vfill at the botton displaces the contents towards the top, producing better(?) results
             SILE.call("hbox")
         end
-        if not hasNotes then
+        if not state.hasNotes then
             SILE.call("notes")
         end
     end)
 
     self:registerCommand("notes", function(_, content)
-        if printNotes then
+        if config.printNotes then
             SILE.call("break")
-            SILE.call("font", { size=notesSize }, function()
+            SILE.call("font", { size=config.notesSize }, function()
                 if content[1] then
                     SILE.process({ content[1] })
                 else
@@ -204,14 +218,14 @@ function class:registerCommands()
                     end
                 end
             end)
-            hasNotes = true
+            state.hasNotes = true
         end
     end)
 
     self:registerCommand("title", function(options, content)
         local size = options.size or "3ex"
         SILE.call("font", { style="Bold", size=size }, function()
-            SILE.call("color", { color=hcolor }, function()
+            SILE.call("color", { color=config.hcolor }, function()
                 SILE.process(content)
             end)
         end)
@@ -235,46 +249,52 @@ function class:registerCommands()
     end)
 
     self:registerCommand("themeColor", function(options, _)
-        hcolor = options.color
+        if options.color then
+            config.hcolor = options.color
+        end
     end)
 
     self:registerCommand("noTransitionSlides", function(_,_)
-        showTransitionSlides = false
+        config.showTransitionSlides = false
     end)
 
     self:registerCommand("ruleFolios", function(_,_)
-        ruleFolios=true
+        config.ruleFolios = true
     end)
 
     self:registerCommand("printNotes", function(options,_)
-        notesSize = options.size or "2.5ex"
-        printNotes=true
+        config.notesSize = options.size or "2.5ex"
+        config.printNotes = true
     end)
 
     self:registerCommand("backgroundImage", function(options, _)
-        mainBG  = options.src
-        imageBG = mainBG
-        if not altBG then
-            altBG = mainBG
+        if options.src then
+            config.mainBG = options.src
+            config.imageBG = options.src
+            if not config.altBG then
+                config.altBG = options.src
+            end
+            SILE.call("rootImage", { src=config.altBG })  -- a hack to place some image in the first slide
         end
-        SILE.call("rootImage", { src=altBG } )  -- a hack to place some image in the first slide
     end)
 
     self:registerCommand("alternateImage", function(options, _)
-        altBG = options.src
+        if options.src then
+            config.altBG = options.src
+        end
     end)
 
     self:registerCommand("rootImage", function(options, _)
         local imagesrc = options.src
         SILE.typesetter:leaveHmode()
         SILE.call("typeset-into", { frame="root" }, function()
-            slide = tostring(plain.packages.counters:formatCounter(SILE.scratch.counters.folio)).." "..slideName
+            slide = tostring(plain.packages.counters:formatCounter(SILE.scratch.counters.folio)).." "..state.slideName
             SILE.call("pdf:destination", { name=slide })
             if isNewSection then
                 isNewSection = false
-                SILE.call("pdf:destination", { name=sectionName })
-                SILE.call("pdf:bookmark", { title=sectionName, dest=sectionName, level=1 })
-                if not showTransitionSlides then
+                SILE.call("pdf:destination", { name=state.sectionName })
+                SILE.call("pdf:bookmark", { title=state.sectionName, dest=state.sectionName, level=1 })
+                if not config.showTransitionSlides then
                     SILE.call("pdf:bookmark", { title=slide, dest=slide, level=2 })
                 end
             else
@@ -286,19 +306,18 @@ function class:registerCommands()
         end)
     end)
 
-    ilevel = 1
     class:registerCommand("litems", function(_,content)
-        ilevel = ilevel + 1
+        state.ilevel = state.ilevel + 1
         for i = 1, #content do
             if type(content[i]) == "table" then
                 SILE.process({ content[i] })
             end
         end
-        ilevel = ilevel - 1
+        state.ilevel = state.ilevel - 1
     end)
 
     class:registerCommand("litem", function(options, content)
-        local level = tonumber(options.level) or ilevel
+        local level = tonumber(options.level) or state.ilevel
         local mark = options.mark or marks[level]
         SILE.typesetter:pushGlue(string.format("%f", 1.5*(level-1)).."em")
         size = string.format("%f", 0.75+0.5/level) .. "em"
