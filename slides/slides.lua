@@ -127,20 +127,24 @@ end
 function class:registerCommands()
     plain.registerCommands(self)
 
+    --- Register running header command
+    -- Displays section headers across the top of slides with navigation links
     self:registerCommand("running-head", function(_, _)
         SILE.call("typeset-into", { frame="runningHead" }, function()
             SILE.call("font", { size="1ex" }, function()
-                for _,val in ipairs(headers) do
+                for _, sectionHeader in ipairs(headers) do
                     SILE.typesetter:pushGlue(SILE.types.node.hfillglue())
-                    if val == state.sectionName then
---                      SILE.call("pdf:link", { dest=val, border=1, borderstyle="underline" }, { val } )
---                      SILE.call("pdf:link", { dest=val, borderwidth="0.2pt", borderstyle="underline", bordercolor=hcolor, borderoffset="0.5pt" }, function()
-                        SILE.call("pdf:link", { dest=val, borderstyle="none", bordercolor=config.hcolor, borderoffset="0.5pt" }, function()
-                            SILE.call("color", { color=config.hcolor }, { val } )
+                    if sectionHeader == state.sectionName then
+			    --
+--                      SILE.call("pdf:link", { dest=sectionHeader, border=1, borderstyle="underline" }, { val } )
+--                      SILE.call("pdf:link", { dest=sectionHeader, borderwidth="0.2pt", borderstyle="underline", bordercolor=hcolor, borderoffset="0.5pt" }, function()
+                        SILE.call("pdf:link", { dest=sectionHeader, borderstyle="none", bordercolor=config.hcolor, borderoffset="0.5pt" }, function()
+                            SILE.call("color", { color=config.hcolor }, { sectionHeader })
                         end)
                     else
-                        SILE.call("pdf:link", { dest=val }, function()
-                            SILE.call("color", { color="gray" }, { val } )
+                        -- Other sections: gray color
+                        SILE.call("pdf:link", { dest=sectionHeader }, function()
+                            SILE.call("color", { color="gray" }, { sectionHeader })
                         end)
                     end
                     SILE.typesetter:pushGlue(SILE.types.node.hfillglue())
@@ -184,6 +188,7 @@ function class:registerCommands()
             SILE.call("breakframevertical")
         end
         if cols>1 then
+            -- FIXME: Multi-column layout needs refinement
             SILE.call("makecolumns", { columns=cols, balanced=false }, {})
         end
         SILE.call("running-head")
@@ -204,6 +209,8 @@ function class:registerCommands()
         end
     end)
 
+    --- Register notes command
+    -- Adds speaker notes (printed separately if notes mode enabled)
     self:registerCommand("notes", function(_, content)
         if config.printNotes then
             SILE.call("break")
@@ -222,6 +229,9 @@ function class:registerCommands()
         end
     end)
 
+    --- Register title command
+    -- Formats slide or section title with bold font and theme color
+    -- @param options.size string font size (default: "3ex")
     self:registerCommand("title", function(options, content)
         local size = options.size or "3ex"
         SILE.call("font", { style="Bold", size=size }, function()
@@ -234,13 +244,15 @@ function class:registerCommands()
         SILE.call("hbox")
     end)
 
+    --- Register table of contents command
+    -- Displays clickable list of all sections
     self:registerCommand("toc", function()
         if #headers>0 then
             SILE.call("hbox")
             SILE.call("vfill")
-            for _,val in ipairs(headers) do
+            for _, sectionHeader in ipairs(headers) do
                 SILE.call("litem", { level=1 }, function()
-                    SILE.call("pdf:link", { dest=val }, { val })
+                    SILE.call("pdf:link", { dest=sectionHeader }, { sectionHeader })
                     SILE.call("vfill")
                 end)
             end
@@ -248,25 +260,36 @@ function class:registerCommands()
         end
     end)
 
+    --- Register theme color command
+    -- Sets the primary color for titles, links, and highlights
     self:registerCommand("themeColor", function(options, _)
         if options.color then
             config.hcolor = options.color
         end
     end)
 
-    self:registerCommand("noTransitionSlides", function(_,_)
+    --- Register no transition slides command
+    -- Disables transition slides between sections
+    self:registerCommand("noTransitionSlides", function(_, _)
         config.showTransitionSlides = false
     end)
 
-    self:registerCommand("ruleFolios", function(_,_)
+    --- Register rule folios command
+    -- Changes page numbers from text to progress bar format
+    self:registerCommand("ruleFolios", function(_, _)
         config.ruleFolios = true
     end)
 
-    self:registerCommand("printNotes", function(options,_)
+    --- Register print notes command
+    -- Enables printing of speaker notes on separate pages
+    -- @param options.size string font size for notes (default: "2.5ex")
+    self:registerCommand("printNotes", function(options, _)
         config.notesSize = options.size or "2.5ex"
         config.printNotes = true
     end)
 
+    --- Register background image command
+    -- Sets the main background image for regular slides
     self:registerCommand("backgroundImage", function(options, _)
         if options.src then
             config.mainBG = options.src
@@ -278,20 +301,26 @@ function class:registerCommands()
         end
     end)
 
+    --- Register alternate image command
+    -- Sets a different background image for transition slides
     self:registerCommand("alternateImage", function(options, _)
         if options.src then
             config.altBG = options.src
         end
     end)
 
+    --- Register root image command (internal)
+    -- Places background image and manages PDF bookmarks/destinations
     self:registerCommand("rootImage", function(options, _)
         local imagesrc = options.src
         SILE.typesetter:leaveHmode()
         SILE.call("typeset-into", { frame="root" }, function()
-            slide = tostring(plain.packages.counters:formatCounter(SILE.scratch.counters.folio)).." "..state.slideName
+            local currentPage = plain.packages.counters:formatCounter(SILE.scratch.counters.folio)
+            local slide = tostring(currentPage) .. " " .. state.slideName
+            
             SILE.call("pdf:destination", { name=slide })
-            if isNewSection then
-                isNewSection = false
+            if state.isNewSection then
+                state.isNewSection = false
                 SILE.call("pdf:destination", { name=state.sectionName })
                 SILE.call("pdf:bookmark", { title=state.sectionName, dest=state.sectionName, level=1 })
                 if not config.showTransitionSlides then
@@ -306,7 +335,9 @@ function class:registerCommands()
         end)
     end)
 
-    class:registerCommand("litems", function(_,content)
+    --- Register list items container command
+    -- Groups list items and manages nesting level
+    self:registerCommand("litems", function(_, content)
         state.ilevel = state.ilevel + 1
         for i = 1, #content do
             if type(content[i]) == "table" then
@@ -316,13 +347,19 @@ function class:registerCommands()
         state.ilevel = state.ilevel - 1
     end)
 
-    class:registerCommand("litem", function(options, content)
+    --- Register list item command
+    -- Renders a single list item with appropriate bullet and indentation
+    -- @param options.level number nesting level (uses state.ilevel if not specified)
+    -- @param options.mark string custom bullet marker
+    self:registerCommand("litem", function(options, content)
         local level = tonumber(options.level) or state.ilevel
-        local mark = options.mark or marks[level]
-        SILE.typesetter:pushGlue(string.format("%f", 1.5*(level-1)).."em")
-        size = string.format("%f", 0.75+0.5/level) .. "em"
-        SILE.call("font", { size=size }, function()
-            SILE.call("color", { color=hcolor }, function()
+        local mark = options.mark or marks[level] or "•"
+        
+        local indent = string.format("%f", 1.5*(level-1)).."em"
+        SILE.typesetter:pushGlue(indent)
+        local fontSize = string.format("%f", 0.75+0.5/level) .. "em"
+        SILE.call("font", { size=fontSize }, function()
+            SILE.call("color", { color=config.hcolor }, function()
                 SILE.typesetter:typeset(mark.." ")
             end)
             SILE.process(content)
