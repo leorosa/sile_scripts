@@ -38,7 +38,7 @@ class.defaultFrameset = {
     root = {   -- used to display a background image
         left   =   "0%pw",
         right  = "100%pw",
-        top    =    "0pt",  -- FIXME: 1st slide is displaced; using a 'cr' in each new one
+        top    =    "0pt",
         bottom = "100%ph"
     }
 }
@@ -47,7 +47,7 @@ class.firstContentFrame = "content"
 
 logfile = (SILE.masterFilename or 'STDIN') .. '.out'
 
-function class:_init (options)
+function class:_init(options)
     plain._init(self, options)
     self:loadPackage("color")
     self:loadPackage("frametricks")
@@ -70,17 +70,17 @@ function class:_init (options)
     fileID:close()
 
     SILE.call("nofoliothispage")
-    SILE.settings:set("document.lineskip","6pt") --"1ex")
-    SILE.settings:set("document.parskip","6pt") --"1ex")
-    SILE.settings:set("document.parindent","0pt")
+    SILE.settings:set("document.lineskip", "6pt")
+    SILE.settings:set("document.parskip", "6pt")
+    SILE.settings:set("document.parindent", "0pt")
     SILE.call("set-counter", {id="folio", value=0})
-    self:registerCommand("foliostyle", function (_, content) -- FIXME
+    self:registerCommand("foliostyle", function(_, _) -- FIXME is this command name suitable?
         if not tonumber(totalPages) then return end
         if ruleFolios then
             SILE.call("noindent")
             local rwidth = string.format("%f", 100*plain.packages.counters:formatCounter(SILE.scratch.counters.folio) / totalPages).."%fw"
             SILE.call("color", { color=hcolor }, function()
-                SILE.call("lower", {height = "65%fh"}, function()
+                SILE.call("lower", {height="65%fh"}, function()
                     SILE.call("hrule", {width=rwidth, height="35%fh"})
                 end)
             end)
@@ -102,7 +102,7 @@ function class:newPage()
     return plain.newPage(self)
 end
 
-function class:finish()  -- store the total number of slides
+function class:finish()  -- store the total number of slides for next run
     fileID = io.open(logfile, "a")
     fileID:write(plain.packages.counters:formatCounter(SILE.scratch.counters.folio) .. "\n")
     fileID:close()
@@ -110,10 +110,10 @@ function class:finish()  -- store the total number of slides
 end
 
 
-function class:registerCommands ()
+function class:registerCommands()
     plain.registerCommands(self)
 
-    self:registerCommand("running-head", function (_, content)
+    self:registerCommand("running-head", function(_, _)
         SILE.call("typeset-into", { frame="runningHead" }, function()
             SILE.call("font", { size="1ex" }, function()
                 for id,val in ipairs(headers) do
@@ -143,13 +143,13 @@ function class:registerCommands ()
         fileID:write(sectionName .. "\n")
         fileID:close()
         if showTransitionSlides then
-            SILE.call("transition", {}, content)--eject")
+            SILE.call("transition", {}, content)
         end
     end)
 
-    self:registerCommand("transition", function(options, content)
+    self:registerCommand("transition", function(_, content)
         SILE.call("break")
-        SILE.call("rootImage", { src=altBG } )
+        SILE.call("rootImage", { src=altBG })
         SILE.call("hbox")
         SILE.call("vfill") -- align slide vertically
         SILE.call("center", {}, function()
@@ -164,13 +164,13 @@ function class:registerCommands ()
         local cols = tonumber(options.columns) or 1
         local vCenter = options.center or false -- align slide vertically
         slideName = content[1] or sectionName
-        SILE.call("rootImage", { src=mainBG } )
-        if options.title ~= nil then
-            SILE.call("title", {}, {options.title} )
+        SILE.call("rootImage", { src=mainBG })
+        if options.title then
+            SILE.call("title", {}, { options.title })
             SILE.call("breakframevertical")
         end
-        if cols > 1 then        -- FIXME
-            SILE.call("makecolumns", { columns=cols , balanced=false } , {})
+        if cols>1 then
+            SILE.call("makecolumns", { columns=cols, balanced=false }, {})
         end
         SILE.call("running-head")
         hasNotes = false
@@ -185,28 +185,23 @@ function class:registerCommands ()
             SILE.call("vfill") -- a second vfill at the botton displaces the contents towards the top, producing better(?) results
             SILE.call("hbox")
         end
-        if hasNotes == false then
+        if not hasNotes then
             SILE.call("notes")
         end
     end)
 
-    self:registerCommand("notes", function (options, content)
+    self:registerCommand("notes", function(_, content)
         if printNotes then
             SILE.call("break")
             SILE.call("font", { size=notesSize }, function()
-                if content[1] ~= nil then
+                if content[1] then
                     SILE.process({ content[1] })
                 else
-                    SILE.call("hrulefill")
-                    SILE.call("skip")
-                    SILE.call("hrulefill")
-                    SILE.call("skip")
-                    SILE.call("hrulefill")
-                    SILE.call("skip")
-                    SILE.call("hrulefill")
-                    SILE.call("skip")
-                    SILE.call("hrulefill")
-                    SILE.call("skip")
+                    -- Generate blank lines for handwritten notes
+                    for _ = 1, 5 do
+                        SILE.call("hrulefill")
+                        SILE.call("skip")
+                    end
                 end
             end)
             hasNotes = true
@@ -214,7 +209,7 @@ function class:registerCommands ()
     end)
 
     self:registerCommand("title", function(options, content)
-        size = options.size or "3ex"
+        local size = options.size or "3ex"
         SILE.call("font", { style="Bold", size=size }, function()
             SILE.call("color", { color=hcolor }, function()
                 SILE.process(content)
@@ -229,9 +224,9 @@ function class:registerCommands ()
         if #headers>0 then
             SILE.call("hbox")
             SILE.call("vfill")
-            for id,val in ipairs(headers) do
+            for _,val in ipairs(headers) do
                 SILE.call("litem", { level=1 }, function()
-                    SILE.call("pdf:link", { dest=val }, { val } )
+                    SILE.call("pdf:link", { dest=val }, { val })
                     SILE.call("vfill")
                 end)
             end
@@ -244,7 +239,7 @@ function class:registerCommands ()
     end)
 
     self:registerCommand("noTransitionSlides", function(_,_)
-        showTransitionSlides=false
+        showTransitionSlides = false
     end)
 
     self:registerCommand("ruleFolios", function(_,_)
@@ -272,37 +267,37 @@ function class:registerCommands ()
     self:registerCommand("rootImage", function(options, _)
         local imagesrc = options.src
         SILE.typesetter:leaveHmode()
-        SILE.call("typeset-into", { frame="root" }, function()  -- FIXME
+        SILE.call("typeset-into", { frame="root" }, function()
             slide = tostring(plain.packages.counters:formatCounter(SILE.scratch.counters.folio)).." "..slideName
             SILE.call("pdf:destination", { name=slide })
             if isNewSection then
                 isNewSection = false
                 SILE.call("pdf:destination", { name=sectionName })
-                SILE.call("pdf:bookmark", { title=sectionName, dest=sectionName, level = 1 })
-                if showTransitionSlides == false then
-                    SILE.call("pdf:bookmark", { title=slide, dest=slide, level = 2 })
+                SILE.call("pdf:bookmark", { title=sectionName, dest=sectionName, level=1 })
+                if not showTransitionSlides then
+                    SILE.call("pdf:bookmark", { title=slide, dest=slide, level=2 })
                 end
             else
-                SILE.call("pdf:bookmark", { title=slide, dest=slide, level = 2 })
+                SILE.call("pdf:bookmark", { title=slide, dest=slide, level=2 })
             end
             if imagesrc then
-                SILE.call("img", {src=imagesrc, width="100%pw", height="100%ph"})
+                SILE.call("img", { src=imagesrc, width="100%pw", height="100%ph" })
             end
         end)
     end)
 
     ilevel = 1
-    class:registerCommand("litems", function(options,content)
+    class:registerCommand("litems", function(_,content)
         ilevel = ilevel + 1
         for i = 1, #content do
-          if type(content[i]) == "table" then   -- ignore strings; process only \item{} commands
-            SILE.process({ content[i] })
-          end
+            if type(content[i]) == "table" then
+                SILE.process({ content[i] })
+            end
         end
         ilevel = ilevel - 1
     end)
 
-    class:registerCommand("litem", function(options,content)
+    class:registerCommand("litem", function(options, content)
         local level = tonumber(options.level) or ilevel
         local mark = options.mark or marks[level]
         SILE.typesetter:pushGlue(string.format("%f", 1.5*(level-1)).."em")
