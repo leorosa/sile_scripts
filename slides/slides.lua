@@ -77,7 +77,7 @@ function class:_init(options)
         end
         io.close(fileID)
         totalPages = headers[#headers]
-        table.remove(headers,idx)
+        table.remove(headers,#headers)
     end
 -- then clear file.out
     fileID = io.open(logfile, "w")
@@ -93,7 +93,7 @@ function class:_init(options)
         if config.ruleFolios then
             SILE.call("noindent")
             local rwidth = string.format("%f", 100*plain.packages.counters:formatCounter(SILE.scratch.counters.folio) / totalPages).."%fw"
-            SILE.call("color", { color=hcolor }, function()
+            SILE.call("color", { color=config.hcolor }, function()
                 SILE.call("lower", {height="65%fh"}, function()
                     SILE.call("hrule", {width=rwidth, height="35%fh"})
                 end)
@@ -154,6 +154,8 @@ function class:registerCommands()
         end)
     end)
 
+    --- Register section command
+    -- Marks a new section and optionally displays a transition slide
     self:registerCommand("section", function(options, content)
         state.sectionName = options.name or content[1]
         state.isNewSection = true
@@ -165,6 +167,8 @@ function class:registerCommands()
         end
     end)
 
+    --- Register transition slide command
+    -- Displays a full-slide transition with centered title
     self:registerCommand("transition", function(_, content)
         SILE.call("break")
         SILE.call("rootImage", { src=config.altBG })
@@ -177,6 +181,11 @@ function class:registerCommands()
         SILE.call("vfill") -- align slide vertically
     end)
 
+    --- Register slide command
+    -- Main slide content container with optional title, columns, and vertical centering
+    -- @param options.columns number column count (default: 1)
+    -- @param options.center boolean vertically center content (default: false)
+    -- @param options.title string optional slide title
     self:registerCommand("slide", function(options, content)
         SILE.call("break")
         local cols = tonumber(options.columns) or 1
