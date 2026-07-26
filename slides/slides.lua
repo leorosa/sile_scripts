@@ -69,7 +69,6 @@ function class:_init(options)
     self:loadPackage("url")
 -- read file.out if exists
     fileID = io.open(logfile, "r")
-    state.headers = {}
     if fileID ~= nil then
         for line in io.lines(logfile) do
             table.insert(state.headers,line)
@@ -87,6 +86,7 @@ function class:_init(options)
     SILE.settings:set("document.parskip", "6pt")
     SILE.settings:set("document.parindent", "0pt")
     SILE.call("set-counter", {id="folio", value=0})
+
     self:registerCommand("foliostyle", function(_, _) -- FIXME is this command name suitable?
         if not tonumber(state.totalPages) then return end
         if config.ruleFolios then
@@ -171,6 +171,7 @@ function class:registerCommands()
         SILE.call("hbox")
         SILE.call("vfill") -- align slide vertically
         SILE.call("center", {}, function()
+            SILE.call("hfill")
             SILE.call("title", {}, content)
         end)
         SILE.call("nofoliothispage")
