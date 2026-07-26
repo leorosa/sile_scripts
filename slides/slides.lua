@@ -24,10 +24,9 @@ local state = {
     isNewSection = true,
     hasNotes = false,
     ilevel = 1,
+    headers = {},
+    totalPages = 1
 }
-
-local headers = {}
-local totalPages = 0
 
 --SILE.documentState.paperSize = SILE.paperSizeParser("5.04in x 3.78in")
 class.defaultFrameset = {
@@ -45,7 +44,7 @@ class.defaultFrameset = {
     },
     runningHead = {
         left   =  "5%pw",
-        right  = "90%pw",
+        right  = "95%pw",
         top    =  "1%ph",
         bottom =  "5%ph"
     },
@@ -70,14 +69,14 @@ function class:_init(options)
     self:loadPackage("url")
 -- read file.out if exists
     fileID = io.open(logfile, "r")
-    headers = {}
+    state.headers = {}
     if fileID ~= nil then
         for line in io.lines(logfile) do
-            table.insert(headers,line)
+            table.insert(state.headers,line)
         end
         io.close(fileID)
-        totalPages = headers[#headers]
-        table.remove(headers,#headers)
+        state.totalPages = state.headers[#state.headers]
+        table.remove(state.headers,#state.headers)
     end
 -- then clear file.out
     fileID = io.open(logfile, "w")
@@ -89,10 +88,10 @@ function class:_init(options)
     SILE.settings:set("document.parindent", "0pt")
     SILE.call("set-counter", {id="folio", value=0})
     self:registerCommand("foliostyle", function(_, _) -- FIXME is this command name suitable?
-        if not tonumber(totalPages) then return end
+        if not tonumber(state.totalPages) then return end
         if config.ruleFolios then
             SILE.call("noindent")
-            local rwidth = string.format("%f", 100*plain.packages.counters:formatCounter(SILE.scratch.counters.folio) / totalPages).."%fw"
+            local rwidth = string.format("%f", 100*plain.packages.counters:formatCounter(SILE.scratch.counters.folio) / state.totalPages).."%fw"
             SILE.call("color", { color=config.hcolor }, function()
                 SILE.call("lower", {height="65%fh"}, function()
                     SILE.call("hrule", {width=rwidth, height="35%fh"})
@@ -103,7 +102,7 @@ function class:_init(options)
             SILE.typesetter:pushGlue(SILE.types.node.hfillglue())
             SILE.call("font", { size="1.5ex" }, function()
                 SILE.call("color", { color=config.hcolor }, function()
-                    SILE.typesetter:typeset(plain.packages.counters:formatCounter(SILE.scratch.counters.folio) .. "/" .. totalPages)
+                    SILE.typesetter:typeset(plain.packages.counters:formatCounter(SILE.scratch.counters.folio) .. "/" .. state.totalPages)
                 end)
             end)
         end
@@ -112,7 +111,6 @@ end
 
 
 function class:newPage()
---  SILE.call("rootImage")
     return plain.newPage(self)
 end
 
@@ -132,10 +130,12 @@ function class:registerCommands()
     self:registerCommand("running-head", function(_, _)
         SILE.call("typeset-into", { frame="runningHead" }, function()
             SILE.call("font", { size="1ex" }, function()
-                for _, sectionHeader in ipairs(headers) do
+                SILE.call("hbox")
+                SILE.typesetter:pushGlue(SILE.types.node.hfillglue())
+                for _, sectionHeader in ipairs(state.headers) do
                     SILE.typesetter:pushGlue(SILE.types.node.hfillglue())
                     if sectionHeader == state.sectionName then
-			    --
+                         -- Current section: highlight with theme color
 --                      SILE.call("pdf:link", { dest=sectionHeader, border=1, borderstyle="underline" }, { val } )
 --                      SILE.call("pdf:link", { dest=sectionHeader, borderwidth="0.2pt", borderstyle="underline", bordercolor=hcolor, borderoffset="0.5pt" }, function()
                         SILE.call("pdf:link", { dest=sectionHeader, borderstyle="none", bordercolor=config.hcolor, borderoffset="0.5pt" }, function()
@@ -147,9 +147,9 @@ function class:registerCommands()
                             SILE.call("color", { color="gray" }, { sectionHeader })
                         end)
                     end
-                    SILE.typesetter:pushGlue(SILE.types.node.hfillglue())
-                    SILE.call("hbox")
                 end
+                SILE.typesetter:pushGlue(SILE.types.node.hfillglue())
+                SILE.call("hbox")
             end)
         end)
     end)
@@ -256,10 +256,10 @@ function class:registerCommands()
     --- Register table of contents command
     -- Displays clickable list of all sections
     self:registerCommand("toc", function()
-        if #headers>0 then
+        if #state.headers>0 then
             SILE.call("hbox")
             SILE.call("vfill")
-            for _, sectionHeader in ipairs(headers) do
+            for _, sectionHeader in ipairs(state.headers) do
                 SILE.call("litem", { level=1 }, function()
                     SILE.call("pdf:link", { dest=sectionHeader }, { sectionHeader })
                     SILE.call("vfill")
