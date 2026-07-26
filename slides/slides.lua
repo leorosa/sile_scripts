@@ -130,8 +130,6 @@ function class:registerCommands()
     self:registerCommand("running-head", function(_, _)
         SILE.call("typeset-into", { frame="runningHead" }, function()
             SILE.call("font", { size="1ex" }, function()
-                SILE.call("hbox")
-                SILE.typesetter:pushGlue(SILE.types.node.hfillglue())
                 for _, sectionHeader in ipairs(state.headers) do
                     SILE.typesetter:pushGlue(SILE.types.node.hfillglue())
                     if sectionHeader == state.sectionName then
@@ -148,8 +146,6 @@ function class:registerCommands()
                         end)
                     end
                 end
-                SILE.typesetter:pushGlue(SILE.types.node.hfillglue())
-                SILE.call("hbox")
             end)
         end)
     end)
