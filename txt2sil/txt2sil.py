@@ -334,12 +334,12 @@ def parse_include(line):
         tmpdir = '/'.join(fname.split('/')[:-1])
         if tmpdir[0] == '/': dirname = tmpdir
         else: dirname += '/'+tmpdir
-    elif not os.path.exists(fname): fname = dirname+'/'+fname
+    elif not option and not os.path.exists(fname): fname = dirname+'/'+fname
     if '!' in option:   # may also be formatted, e.g. as 'code!' or '!quote'
         p      = os.popen(fname)
         output = p.read()
         for line in str(output).rstrip().split('\n'):   # rstrip() needed to remove the trailing \n
-            print( parse_replaces(line) )
+            parse(line)
     elif fname[-4:] in ['.png', '.jpg', '.svg', '.gif', '.bmp', '.dot']:
         lastobj = 'Figure'
         if label: do_caption()
